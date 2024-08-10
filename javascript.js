@@ -4,11 +4,8 @@ const formSection = document.querySelector(".new-game-form-section");
 const gameInfoSection = document.querySelector(".game-info-section");
 const gameContainerSection = document.querySelector(".game-container-section");
 
-let runTest = false;
 
-// Game Board module
-
-
+// The Game Board
 function ticTacToeBoard() {
 
     const rows = 3;
@@ -18,7 +15,6 @@ function ticTacToeBoard() {
 
 
     // Create the board as an array of arrays:
-
     for (let r = 0; r < rows; r++) {
         board[r] = [];
         for (let c = 0; c < columns; c++) {
@@ -26,34 +22,37 @@ function ticTacToeBoard() {
         }
     }
 
-
-
-
+    // Is this row/column pair a valid spot to play?
     const validLocation = (r, c) => {
-
         return (r > -1) && (r < rows) && (c > -1) && (c < columns);
     }
 
+    // Convert the board with objects to a pure array with numbers:
     const getBoardWithCellValues = () => {
         return board.map((row) => row.map((cell) => cell.readVal()));
     }
 
+    // Display the board (console game version only)
     const printBoard = () => {
         console.table(getBoardWithCellValues());
 
     }
 
+    // Place your marker at the location row m, column n on the board
     const placeMarker = (m, n, marker) => {
-        // based on the player marker
+
         numMoves++;
+
 
         if (!validLocation(m, n)) {
             console.log(`Please play between 0 and ${rows - 1}`);
             return false;
         }
-        // Returns true if successful and false if unsucessful
-        // If the spot is null: 
+
+
+
         const thisCell = board[m][n]; // This works because thisCell is a pointer
+
 
         if (!thisCell.readVal()) {
             thisCell.setVal(marker); // This works because thisCell is a pointer, board[m][n] is actually updated
@@ -64,8 +63,9 @@ function ticTacToeBoard() {
         }
     }
 
+
     const isThreeInARow = (marker, threeArray) => {
-        // Check if threeArray is three of  marker in a row
+        // Check if threeArray is three of a marker in a row
         return threeArray.every(num => num === marker);
     }
 
@@ -73,7 +73,6 @@ function ticTacToeBoard() {
     const winningConfigurationExistsFor = (playerId) => {
         // Returns true if a winning configuration exists on the board, false otherwise. For this playerId (the cell value of the board cells is null or one ofthe player ids)
         const cellBoard = getBoardWithCellValues();
-
 
         // check each row
         for (let r = 0; r < rows; r++) {
@@ -101,12 +100,12 @@ function ticTacToeBoard() {
         return numMoves > 8;
     }
 
-
-
     return { printBoard, placeMarker, winningConfigurationExistsFor, tie };
+
 };
 
 
+// Each unit of the game board:
 function Cell() {
     // empty is null
     let cellVal = null;
@@ -122,17 +121,16 @@ function Cell() {
     return { setVal, readVal };
 }
 
+
 function Player(name, idIn, playerLabelIn) {
     let playerName = name;
     let id = idIn;
     let numGamesWon = 0;
     let playerLabel = playerLabelIn;
 
-
     const getName = () => {
         return playerName;
     }
-
 
     const getId = () => {
         return id;
@@ -147,39 +145,43 @@ function Player(name, idIn, playerLabelIn) {
         console.log(`${playerName}, id: ${id}`);
     }
 
+    // This is not currently being used.
     const incrementNumberOfGamesWon = () => {
         numGamesWon++;
     }
 
+    // This is not currently being used.
     const getNumberOfGamesWon = () => {
         return numGamesWon;
     }
 
-    return { getName, getId, getLabel, displayInfo, incrementNumberOfGamesWon, getNumberOfGamesWon };
+    return { getName, getId, getLabel, displayInfo };
 
 }
+
 
 function GameController(
     playerOneName = "X",
     playerTwoName = "O"
 ) {
 
-    let isAWinner = false;
+    let thereIsAWinner = false;
     let gameOver = false;
 
     const isGameOver = () => {
         return gameOver;
     }
 
+    // This is the information about whose turn it is that is on top of the board.
     let displayInfo = '';
     const getDisplayInfo = () => {
         return displayInfo;
     }
+
     // Get the marker of the first player
     const marker = formSection.querySelector('input[name="playermarker"]:checked');
 
-    // Get Player List from Input Form
-
+    // Get Player List from Input Form from the start menu:
     const getPlayersFromForm = () => {
         const playerNames = formSection.querySelectorAll('.radio-button-text');
         return [Player(playerNames[0].textContent, 1, playerNames[0].getAttribute("for")),
@@ -195,15 +197,11 @@ function GameController(
     }
 
     const getFirstPlayer = () => {
-        // Change this to the result of the input form
-        //return players[1];
-
         return players.find((el) => el.getLabel() === marker.id);
     }
 
     // Choose a first player
     let currentPlayer = getFirstPlayer();
-
 
     const nextPlayer = () => {
         currentPlayer = (currentPlayer === players[0]) ? players[1] : players[0];
@@ -214,7 +212,6 @@ function GameController(
     }
 
     // Delete the start menu's form contents because we've gotten the data from it already
-    // 
     let child = formSection.lastElementChild;
     while (child) {
         formSection.removeChild(child);
@@ -223,40 +220,32 @@ function GameController(
 
 
     // Make the board
-
     let board = ticTacToeBoard();
-
-    // Based on this board, make the DOM board.
 
     const viewBoard = () => {
         board.printBoard();
     }
 
-
-
+    // Information about the round to do in to the top display
     const printNewRound = () => {
         //board.printBoard();
         displayInfo = `${currentPlayer.getName()}'s turn.`;
         console.log(displayInfo);
     }
-    // Defines a function: takeTurn(n,m) : based on whose turn it is, put your player marker down onto the board
 
+    // Defines a function: takeTurn(n,m) : based on whose turn it is, put your player marker down onto the board
     const takeTurn = (m, n) => {
 
-
         let placeMarkerSuccess = board.placeMarker(m, n, currentPlayer.getId());
-
 
         // Check for winning conditions
 
         for (let p = 0; p < 2; p++) {
             if (board.winningConfigurationExistsFor(players[p].getId())) {
-                isAWinner = true;
+                thereIsAWinner = true;
                 board.printBoard();
-                players[p].incrementNumberOfGamesWon();
                 displayInfo = `${players[p].getName()} wins!`;
                 console.log(displayInfo);
-                // Create a "New Game" button and take us back to the start.
                 gameOver = true;
                 return;
             }
@@ -264,7 +253,7 @@ function GameController(
 
         // Check for ties
         if (board.tie()) {
-            isAWinner = false;
+            thereIsAWinner = false;
             board.printBoard();
             displayInfo = `Tie!`;
             console.log(displayInfo);
@@ -286,7 +275,7 @@ function GameController(
         // Get a new board.
         board = ticTacToeBoard();
         currentPlayer = getFirstPlayer();
-        isAWinner = false;
+        thereIsAWinner = false;
         displayController.goToStartMenu();
         printNewRound();
     }
@@ -314,7 +303,6 @@ const displayController = (function () {
 
     // Create the start menu below the header
     const goToStartMenu = () => {
-
 
         // Reset if we were just playing a game.
         deleteGameDisplay();
@@ -384,22 +372,19 @@ const displayController = (function () {
             //runTestFunction(true);
         })
 
-
-
     }
 
 
 
-    // Delete the start menu and display the game board based on which player was selected to start
+   
     const gameDisplayInfo = document.createElement("p");
+
+    // Delete the start menu and display the game board based on which player was selected to start
     const initializeGame = () => {
 
         // Create the display text box inside of gameInfoSection
-
-
         gameDisplayInfo.textContent = "";
         gameInfoSection.appendChild(gameDisplayInfo);
-        // Create the board using grid
 
         // Create the board DOM elements as a grid:
         const gameBoardDOMContainer = document.createElement("div");
@@ -429,19 +414,20 @@ const displayController = (function () {
 
                         allCells = document.querySelectorAll(".cell");
 
-                        allCells.forEach((button)=>{
+                        allCells.forEach((button) => {
                             button.disabled = true;
                         })
 
-                        
-                    } 
+
+                    }
                     // Put game information from last turn into the display
                     gameDisplayInfo.textContent = game.getDisplayInfo();
 
                 })
             }
         }
-        
+
+        // Create the restart button that can be clicked at any time
         restartButton = document.createElement("button");
         restartButton.classList.add("restart-button")
         restartButton.textContent = "Restart Game";
@@ -450,11 +436,10 @@ const displayController = (function () {
         restartButton.addEventListener("click", (event) => {
             game.restartGame();
         })
+
         // Create a new Game.
         const game = GameController();
         gameDisplayInfo.textContent = game.getDisplayInfo();
-        // Each space on the board has event listeners to update the display text and change the turn.
-
 
     }
 
@@ -464,13 +449,9 @@ const displayController = (function () {
 })();
 
 
-// const game = GameController();
-
-// const { takeTurn, getPlayerList, getCurrentPlayer, viewBoard } = game;
 
 
-
-
+// Testing stuff:
 // Run the game automatically: 
 function runTestFunction(runTheTest) {
     if (runTheTest) {
