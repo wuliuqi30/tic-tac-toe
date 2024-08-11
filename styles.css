@@ -86,10 +86,13 @@ body{
 form{
     display:flex;
     flex-direction: column;
-    height: 300px;
     align-items: center;
     justify-content: space-around;
     border: 1px solid black;
+    padding: 20px;
+
+    font-size:1.5rem;
+
 }
 
 h1{
@@ -97,6 +100,11 @@ h1{
     padding: 10px;
 
     font-size: 2rem;
+}
+
+.inputNameRow{
+    display:flex;
+    gap: 10px;
 }
 
 .game-info-section{

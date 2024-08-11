@@ -2,7 +2,7 @@ function Player(name, idIn, playerLabelIn) {
     let playerName = name;
     let id = idIn;
     let numGamesWon = 0;
-    let playerLabel = playerLabelIn;
+    let playerLabel = playerLabelIn; // This is the symbol that will go into their box when checked.
 
     const getName = () => {
         return playerName;

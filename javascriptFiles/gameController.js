@@ -21,9 +21,20 @@ function GameController(
 
     // Get Player List from Input Form from the start menu:
     const getPlayersFromForm = () => {
-        const playerNames = formSection.querySelectorAll('.radio-button-text');
-        return [Player(playerNames[0].textContent, 1, playerNames[0].getAttribute("for")),
-        Player(playerNames[1].textContent, 2, playerNames[1].getAttribute("for"))]
+        const playerRadioLabels = formSection.querySelectorAll('.radio-button-text');
+        const playerNames = formSection.querySelectorAll('input[type="text"]');
+        let player1Marker;
+        let player2Marker; 
+
+        if (marker.value === "x"){
+            player1Marker = "X";
+            player2Marker = "O";
+        } else {
+            player1Marker = "O";
+            player2Marker = "X";
+        }
+        return [Player(playerNames[0].value, 1, player1Marker),
+        Player(playerNames[1].value, 2, player2Marker)]
     };
 
     const players = getPlayersFromForm();
@@ -35,7 +46,7 @@ function GameController(
     }
 
     const getFirstPlayer = () => {
-        return players.find((el) => el.getLabel() === marker.id);
+        return players[0];
     }
 
     // Choose a first player
